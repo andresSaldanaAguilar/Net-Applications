@@ -8,21 +8,29 @@ public class S_H_M{
         ServerSocket ss = new ServerSocket(3000);
         ss.setReuseAddress(true);
         System.out.println("Servidor iniciado");
-        //conexion con el cliente
-        Socket cl = ss.accept();
-        System.out.println("Conexion desde "+ cl.getInetAddress() +" en el puerto " + cl.getPort());
-        //escritor de respuesta
-        PrintWriter pw= new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
-        //escucha de peticiones
-        BufferedReader br1 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
-        String msj;
         while(true){
-            msj = br1.readLine();
-            String echo = "echo-" + msj + "\n";
-            System.out.println("mensaje del cliente: " + msj);
-            pw.println(echo);
-            pw.flush(); //vaciar el buffer de escritura
+            String msj;
+            //conexion con el cliente
+            Socket cl = ss.accept();
+            System.out.println("Conexion desde "+ cl.getInetAddress() +" en el puerto " + cl.getPort());
+            //escritor de respuesta
+            PrintWriter pw= new PrintWriter(new OutputStreamWriter(cl.getOutputStream()));
+            //escuchador de peticiones
+            BufferedReader br1 = new BufferedReader(new InputStreamReader(cl.getInputStream()));
+            
+            //estara cachando los mensajes de un cliente hasta que este se desconecte
+            try{
+                while ((msj = br1.readLine()) != null) {
+                    String echo = "echo --" + msj;
+                    System.out.println("mensaje del cliente: " + msj);
+                    pw.println(echo);
+                    pw.flush(); //vaciar el buffer de escritura
+                }
+            }catch(Exception e){
+                pw.close();
+                br1.close();
+                cl.close();
+            }
         }
-
 	}
 }

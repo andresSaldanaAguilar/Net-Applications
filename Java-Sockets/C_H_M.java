@@ -13,20 +13,25 @@ public static void main(String[] args)throws Exception{
         System.out.println("Conexion establecida");
 
         //para leer cadenas
-        BufferedReader br2= new BufferedReader(new InputStreamReader(sr.getInputStream()));
+        BufferedReader br2 = new BufferedReader(new InputStreamReader(sr.getInputStream()));
         
         //para enviar cadenas (lineas)
-        PrintWriter pw= new PrintWriter(new OutputStreamWriter(sr.getOutputStream()));
-        
+        PrintWriter pw = new PrintWriter(new OutputStreamWriter(sr.getOutputStream()));
+        String datos=null;
         while(true){
-            String datos = br1.readLine();
+            datos = br1.readLine();
+            //si no recibe mensaje o se manda salir, termina la  conexion
+            if(datos.equals("quit") || datos.equals("")){
+                break;
+            }
+            //de los contrario, manda el mensaje y escucha el echo
             pw.println(datos);
             pw.flush();
             String echo= br2.readLine();
             System.out.println("Echo recibido: " + echo);
         }
-        // br2.close();
-        // br1.close();
-        // sr.close();
+        br1.close();
+        br2.close();
+        sr.close();
 	}	
 }
