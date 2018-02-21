@@ -7,6 +7,7 @@ public class Person implements Serializable {
 	String phone;
 	String birthdate;
 	String email;
+        boolean bday;
 	int action;
 
 	public Person(String fn, String ln, String p, String bd, String e, int a){
@@ -16,6 +17,7 @@ public class Person implements Serializable {
 		this.birthdate = bd;
 		this.email = e;
 		this.action = a;
+                this.bday = false;
 	}
 	String getFirstName(){
 		return this.firstname;
@@ -35,6 +37,9 @@ public class Person implements Serializable {
 	int getAction(){
 		return this.action;
 	}
+        boolean getbDday(){
+                return this.bday;
+        }
 	void setFirstName(String firstName){
 		this.firstname = firstName;
 	}	
@@ -49,5 +54,8 @@ public class Person implements Serializable {
 	}	
 	void setEmail(String email){
 		this.email = email;
-	}	
+        }
+        void setbdDay(){
+                this.bday = true;
+        }
 }
