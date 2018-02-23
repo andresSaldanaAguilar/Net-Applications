@@ -9,11 +9,8 @@ public class Cliente{
             int pto = 8888;
             String dst = "127.0.0.1";
             Scanner reader = new Scanner(System.in);
-            
-            
+                        
             while(true){
-                
-                Runtime.getRuntime().exec("clear");
                 
                 Socket cl = new Socket(dst,pto);            
 
@@ -22,12 +19,11 @@ public class Cliente{
                         + "2.-Actualizar Persona \n"
                         + "3.-Consultar Persona \n"
                         + "4.-Eliminar Persona \n"
-                        + "5.-Salir");
+                        + "5.-Consultar agenda \n"
+                        + "6.-Salir");
                 int op = Integer.parseInt(reader.next());        
 
                 String firstName = "", lastName = "", phone = "", birthDate = "", email = "";
-                int accion = 0;
-
 
                 if(op ==1){
                     //caso en que insertamos un usuario
@@ -41,15 +37,13 @@ public class Cliente{
                     birthDate = reader.next();
                     System.out.println("Ingresa su email: ");
                     email = reader.next();
-                    accion = 1;
+                    
                     ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());
                     ObjectInputStream ois = new ObjectInputStream(cl.getInputStream());
 
-                    Person p1  = new Person(firstName,lastName,phone,birthDate,email,accion);        
+                    Person p1  = new Person(firstName,lastName,phone,birthDate,email,1);        
                     oos.writeObject(p1);
                     oos.flush();
-
-                    System.out.println("Peticion enviada ");
 
                     ois.close();
                     oos.close();
@@ -57,7 +51,7 @@ public class Cliente{
                 }
                 else if(op == 2){
                     //actualizacion de usuario
-                    System.out.println("Ingresa correo: ");
+                    System.out.println("Ingresa correo (identificador): ");
                     email = reader.next();
 
                     ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());
@@ -67,9 +61,7 @@ public class Cliente{
                     oos.writeObject(p1);
                     oos.flush();
 
-                    System.out.println("Peticion enviada");
-
-                    //recibiendo los nuevos valores a actualizar
+                    //recibiendo los valores actuales y en espera de nuevos valores a actualizar
                     String newfirstName, newlastName, newphone, newbirthDate;
 
                     Person p2 = (Person)ois.readObject();
@@ -81,7 +73,6 @@ public class Cliente{
                     newphone = reader.next();
                     System.out.println("Fecha de nacimiento actual: " + p2.getBirthDate());
                     newbirthDate = reader.next();
-
 
                     if(newfirstName.equals("-")){
                         newfirstName = p2.getFirstName();
@@ -96,17 +87,20 @@ public class Cliente{
                         newbirthDate = p2.getBirthDate();
                     }
 
+                    Socket cl2 = new Socket(dst,pto);
+                    //mandando los campos actualizados
                     Person p1v2  = new Person(newfirstName,newlastName,newphone,newbirthDate,p2.getEmail(),3);           
-                    ObjectOutputStream oos1 = new ObjectOutputStream(cl.getOutputStream());
-                    ObjectInputStream ois1 = new ObjectInputStream(cl.getInputStream());
-                    oos1.writeObject(p1v2);
-                    oos1.flush();
+                    ObjectOutputStream oos2 = new ObjectOutputStream(cl2.getOutputStream());
+                    ObjectInputStream ois2 = new ObjectInputStream(cl2.getInputStream());
+                    oos2.writeObject(p1v2);
+                    oos2.flush();
 
-                    ois1.close();
-                    oos1.close();
+                    ois2.close();
+                    oos2.close();
                     ois.close();
                     oos.close();
-                    cl.close();               
+                    cl.close();
+                    cl2.close();
                 }
                 else if(op == 3){
                     //consulta de usuario
@@ -119,8 +113,8 @@ public class Cliente{
                     Person p1  = new Person(firstName,lastName,phone,birthDate,email,2); 
                     oos.writeObject(p1);
                     oos.flush();
-
-                    System.out.println("Peticion enviada");
+                    
+                    //recibiendo la info de la persona
                     Person p2 = (Person)ois.readObject();
                     System.out.println("Nombre: " + p2.getFirstName() +
                     "\nApellido: "+ p2.getLastName() + "\nTelefono: " + p2.getPhone() + "\nDia de nacimiento: " + p2.getBirthDate() + "\nCorreo: " + p2.getEmail());
@@ -131,7 +125,7 @@ public class Cliente{
                     oos.close();
                     cl.close();               
                 }
-                else if (op ==4){
+                else if (op == 4){
                     //borrado de usuario
                     System.out.println("Ingresa correo: ");
                     email = reader.next();
@@ -142,16 +136,28 @@ public class Cliente{
                     Person p1  = new Person(firstName,lastName,phone,birthDate,email,4); 
                     oos.writeObject(p1);
                     oos.flush();
-                    System.out.println("Peticion enviada");
 
                     ois.close();
                     oos.close();
+                    cl.close();
+                }
+                else if(op == 5){
+                    //select all
+                    ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());
+                    ObjectInputStream ois = new ObjectInputStream(cl.getInputStream());
+
+                    Person p1  = new Person(firstName,lastName,phone,birthDate,email,5); 
+                    oos.writeObject(p1);
+                    oos.flush();
+                    
+                    String msj = ois.readUTF();
+                    System.out.print("\n" + msj);
                 }
                 else{
+                    cl.close();
                     break;
                 }
-        }
-
+            }
 
         }catch(Exception e){
             e.printStackTrace();

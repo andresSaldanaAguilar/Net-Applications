@@ -1,15 +1,18 @@
 import java.net.*;
 import java.io.*;
 import javax.swing.JFileChooser;
+import java.util.*;
 
 public class EnviaN{
 	public static void main(String[] args){
 		try{
+			//conexion
 			int pto = 1234, n = 0,procentaje = 0;
 			String host="127.0.0.1";
 
+			//seleccion de archivos
 			JFileChooser jf = new JFileChooser();
-			jf.requestFocus();  /*Lo manda a primer plano*/
+			jf.requestFocus(); 
 			jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			jf.setMultiSelectionEnabled(true);
  			int r = jf.showOpenDialog(null);
@@ -17,52 +20,46 @@ public class EnviaN{
 			if (r==JFileChooser.APPROVE_OPTION) {
 
 				File [] f = jf.getSelectedFiles();
-				String nombre [] = new String[10];
-				String path [] = new String[10];
-				long tam [] = new long[10]; 
+				List<String> nombre = new ArrayList<String>();
+				List<String> path = new ArrayList<String>();
+				List<Long> tam = new ArrayList<Long>();
+				
 				/*Realizar un for para que vaya leyendo cada uno de los datos del arreglo*/
-
 				for (int i = 0; i < f.length ; i++) {
-					nombre [i] = f[i].getName();	
-					tam [i] = f[i].length();
-					path [i] = f[i].getAbsolutePath();
-					System.out.println(nombre[i] + " " + path[i] + " " + tam[i]);
+					nombre.add(f[i].getName());	
+					tam.add(f[i].length());
+					path.add(f[i].getAbsolutePath());
 				}
 				
 				/*se ocupan data streams porque mandaremos diferentes tipos de dato*/
-
-				Socket cl = new Socket(host,pto);
-				DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
-				dos.writeInt(f.length);
-				dos.flush();
-				
 				for (int i = 0; i < f.length ; i++) {
-					/*Asumiendo que ya está conectado*/
-					System.out.println("Conexion establecida.\n"+
-								"Inicia transferencia de archivos: "+path[i]);
 
-					DataInputStream dis = new DataInputStream(new FileInputStream(path[i]));
+					Socket cl = new Socket(host,pto);
+					DataOutputStream dos = new DataOutputStream(cl.getOutputStream());
+					DataInputStream dis = new DataInputStream(new FileInputStream(path.get(i)));
+					System.out.println("Conexion establecida, Inicia transferencia de archivo.");
+					
 					int enviados = 0;
-					dos.writeUTF(nombre[i]);
+					dos.writeUTF(nombre.get(i));
 					dos.flush();
-					dos.writeLong(tam[i]);
+					dos.writeLong(tam.get(i));
 					dos.flush();
 
 					byte[] b = new byte[1500];
 
-					while(enviados < tam[i]){
+					while(enviados < tam.get(i)){
 						n = dis.read(b);
 						enviados += n;
 						dos.write(b,0,n);
 						dos.flush();
-						procentaje = (int)((enviados*100)/tam[i]);
-						System.out.print("\r Transmitiendo el "+procentaje+"% del archivo.");
+						procentaje = (int)((enviados*100)/tam.get(i));
+						System.out.println("\r Transmitiendo el "+procentaje+"% del archivo.");
 					}
 					System.out.println("Archivo transmitido");
 					dis.close();
-				}
 					dos.close();
-					cl.close();
+				}
+				cl.close();
 			}
 		}catch(Exception e){
 			e.printStackTrace();
