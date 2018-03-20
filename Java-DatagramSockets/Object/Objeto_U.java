@@ -6,7 +6,7 @@ public class Objeto_U implements Serializable {
   int n;
   int total;
   byte[] msj;
-    
+  
   public Objeto_U(int n, int t, byte[] b){
       this.n = n;
       this.total = t;
