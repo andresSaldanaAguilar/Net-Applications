@@ -59,7 +59,7 @@ public class EnviaN{
 					dis.close();
 					dos.close();
 				}
-				cl.close();
+				//
 			}
 		}catch(Exception e){
 			e.printStackTrace();

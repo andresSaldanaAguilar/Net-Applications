@@ -23,14 +23,14 @@ public class Servidor_O_UDP {
                 Objeto_U objeto = (Objeto_U)ois.readObject();
                 System.out.println("Datos del paquete:");
                 msj += new String (objeto.getB());     
-                  
-                
-
             }   
             catch(EOFException eof){
                 //break;
             }
             System.out.println("mensaje recibido: " + msj);
+
+            ObjectOutputStream oos = new ObjectOutputStream(new ByteArrayOutputStream(msj.getBytes()));
+            
         }//for
         //s.close();
     }catch(Exception e){

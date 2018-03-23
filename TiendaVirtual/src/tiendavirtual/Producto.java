@@ -1,22 +1,21 @@
 package tiendavirtual;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
  *
  * @author andressaldana
  */
-public class Producto {
-    int id;
+public class Producto implements Serializable{
     String nombre;
     String descripcion;
     float precio;
     int existencia;
     float descuento;
-    LinkedList<String> imagenes;
+    String imagenes;
     
-    public Producto(int id, String nombre, String descripcion, float precio,int existencia, float descuento, LinkedList<String> imagenes){
-        this.id = id;
+    public Producto(String nombre, String descripcion, float precio,int existencia, float descuento, String imagenes){
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
@@ -25,24 +24,33 @@ public class Producto {
         this.imagenes = imagenes;
     }
     
-    String getNombre(int id){
+    String getNombre(){
         return this.nombre;
     }
     
-    String getDescripcion(int id){
+    String getDescripcion(){
         return this.descripcion;
     }
     
-    float getPrecio(int id){
+    float getPrecio(){
         return this.precio;
     }
     
-    int getExistencia(int id){
+    int getExistencia(){
         return this.existencia;
     }
     
-    LinkedList<String> getImagenes(){
+    float getDescuento(){
+        return this.descuento;
+    }    
+    
+    String getCadenaImagenes(){
         return this.imagenes;
+    }
+    
+    String[] getImagenes(){
+        String[] arr = this.imagenes.split("-");
+        return arr;
     }
             
 }
