@@ -180,22 +180,57 @@ public class Interfaz extends javax.swing.JFrame {
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         
         int existencia[] = new int[list.size()];
+
+        boolean esValido= true;
         
         for(int i= 0; i < list.size(); i++){
             try{
-            //valida la existencia
-            if(Integer.parseInt(jTable1.getValueAt(i, 4).toString()) > Integer.parseInt(jTable1.getValueAt(i, 3).toString())){
-                JOptionPane.showMessageDialog(null, "No contamos con la existencia que requiere de "+list.get(i).getNombre(),"Error de Compra",JOptionPane.WARNING_MESSAGE);
-                break;
+                //valida la existencia
+                if(Integer.parseInt(jTable1.getValueAt(i, 4).toString()) > Integer.parseInt(jTable1.getValueAt(i, 3).toString())){
+                    JOptionPane.showMessageDialog(null, "No contamos con la existencia que requiere de "+list.get(i).getNombre(),"Error de Compra",JOptionPane.WARNING_MESSAGE);
+                    esValido = false;
+                    break;
+                }
+            }catch(Exception e){}
+        }
+        
+        if(esValido){
+            LinkedList<Producto> sublist = new LinkedList();
+            for(int i= 0; i < list.size(); i++){
+                try{
+                //valida la existencia
+                if(Integer.parseInt(jTable1.getValueAt(i, 4).toString()) > Integer.parseInt(jTable1.getValueAt(i, 3).toString())){
+                    JOptionPane.showMessageDialog(null, "No contamos con la existencia que requiere de "+list.get(i).getNombre(),"Error de Compra",JOptionPane.WARNING_MESSAGE);
+                    break;
+                }
+                //caso en que no se puso nada en la casilla
+                else if(jTable1.getValueAt(i, 4).toString().isEmpty() == true){
+                    Cliente_O cliente = new Cliente_O();
+                    cliente.enviaCompra(list);
+                }
+                //caso en que si se puso algo en la casilla
+                else{
+                    existencia[i] = Integer.parseInt(jTable1.getValueAt(i, 3).toString()) - Integer.parseInt(jTable1.getValueAt(i, 4).toString());
+                    list.get(i).setExistencia(existencia[i]);
+                    Cliente_O cliente = new Cliente_O();
+                    cliente.enviaCompra(list);
+                    sublist.add(list.get(i));
+                }
+                }catch(Exception e){} 
+            }            
+            String mensaje = "Compra exitosa. \n";
+            float total = 0;
+            float descuento = 0;
+            int aux = 0;
+            for(Producto producto:sublist){
+                descuento = Integer.parseInt(jTable1.getValueAt(aux, 4).toString()) * (producto.getPrecio() - producto.getPrecio()*producto.getDescuento());
+                mensaje += producto.getNombre()+", cantidad: "+jTable1.getValueAt(aux, 4).toString()+", precio: "+producto.getPrecio()+", descuento: "+producto.getDescuento()+" = "+ Integer.parseInt(jTable1.getValueAt(aux, 4).toString()) * (producto.getPrecio() - producto.getPrecio()*producto.getDescuento())+"\n";
+                total += descuento;
+                aux++;
             }
-            //envia los objetos con la nueva existencia
-            else{
-                existencia[i] = Integer.parseInt(jTable1.getValueAt(i, 3).toString()) - Integer.parseInt(jTable1.getValueAt(i, 4).toString());
-                list.get(i).setExistencia(existencia[i]);
-                Cliente_O cliente = new Cliente_O();
-                cliente.enviaCompra(list);
-            }
-            }catch(Exception e){} 
+            mensaje+= "Total: "+total;
+            
+            JOptionPane.showMessageDialog(null,mensaje);       
         }
         showItems();
     }//GEN-LAST:event_jButton2ActionPerformed

@@ -36,7 +36,15 @@ public class Cliente_O {
         Socket cl = new Socket("localhost",3000);
         System.out.println("Conexion con servidor exitosa");
 
-        ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());       
+        //enviamos identificador
+        PrintWriter printWriter = new PrintWriter(cl.getOutputStream());
+        printWriter.write("B\n");
+        printWriter.flush();
+        printWriter.close();
+        
+        Socket cl1 = new Socket("localhost",3000);
+
+        ObjectOutputStream oos = new ObjectOutputStream(cl1.getOutputStream());       
         System.out.println(list.size());
         for (Producto producto: list) {
             oos.writeObject(producto);
