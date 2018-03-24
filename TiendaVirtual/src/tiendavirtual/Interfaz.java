@@ -6,8 +6,11 @@
 package tiendavirtual;
 
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -23,19 +26,14 @@ public class Interfaz extends javax.swing.JFrame {
      * Creates new form Interfaz
      */
     LinkedList<Producto> list;
-    public Interfaz(LinkedList<Producto> list) {
+    public Interfaz() throws Exception {
         
+        /*traemos los elementos del catalogo*/
+        Cliente_O cliente = new Cliente_O();
+        LinkedList<Producto> list = cliente.recibeCatalogo();
         this.list = list;
-        
-        initComponents();
-        
-        //event listener
-        jTable1.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
-            public void valueChanged(ListSelectionEvent event) {
-                System.out.println("Source: " + jTable1.getValueAt(jTable1.getSelectedRow(), 0).toString());
-                buscarImagen(jTable1.getValueAt(jTable1.getSelectedRow(), 0).toString());
-            }
-        });
+        /*mostramos los elementos del catalogo*/
+        initComponents(); 
     }
 
     /**
@@ -47,46 +45,116 @@ public class Interfaz extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+
+        jLabel1.setText("jLabel1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 204));
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+
+        jScrollPane1.setBackground(new java.awt.Color(204, 204, 204));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Nombre", "Precio", "Descuento", "Disponibles"
+                "Nombre", "Precio", "Descuento", "Disponibles","Cantidad"
             }
         ));
         jTable1.setCellSelectionEnabled(true);
+        jTable1.setRowHeight(20);
         jScrollPane1.setViewportView(jTable1);
 
-        jPanel2.add(jScrollPane1);
+        jPanel3.setBackground(new java.awt.Color(255, 211, 50));
 
+        jLabel2.setFont(new java.awt.Font("Hiragino Kaku Gothic Std", 0, 24)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Tiangüis Libre");
+
+        jButton1.setBackground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Ver detalle");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1);
+
+        jButton2.setBackground(new java.awt.Color(255, 255, 255));
+        jButton2.setText("Comprar");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(jLabel2))
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(37, 37, 37)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(12, 12, 12))
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 460, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 591, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -103,17 +171,46 @@ public class Interfaz extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //muestra detalle
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-
+                buscarImagen(jTable1.getValueAt(jTable1.getSelectedRow(), 0).toString());
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    //realiza compra
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        
+        int existencia[] = new int[list.size()];
+        
+        for(int i= 0; i < list.size(); i++){
+            try{
+            //valida la existencia
+            if(Integer.parseInt(jTable1.getValueAt(i, 4).toString()) > Integer.parseInt(jTable1.getValueAt(i, 3).toString())){
+                JOptionPane.showMessageDialog(null, "No contamos con la existencia que requiere de "+list.get(i).getNombre(),"Error de Compra",JOptionPane.WARNING_MESSAGE);
+                break;
+            }
+            //envia los objetos con la nueva existencia
+            else{
+                existencia[i] = Integer.parseInt(jTable1.getValueAt(i, 3).toString()) - Integer.parseInt(jTable1.getValueAt(i, 4).toString());
+                list.get(i).setExistencia(existencia[i]);
+                Cliente_O cliente = new Cliente_O();
+                cliente.enviaCompra(list);
+            }
+            }catch(Exception e){} 
+        }
+        showItems();
+    }//GEN-LAST:event_jButton2ActionPerformed
     
+    //muestra las filas de los productos
     void showItems(){
+        //eliminamos las filas si hay existentes
+        DefaultTableModel dtm = (DefaultTableModel) jTable1.getModel();
+        dtm.setRowCount(0);
 
         String[] columns = new String[] {
             "Nombre", "Descripcion", "Precio", "Descuento","Existencia"
         };
         
-        //create table with data
+        //crea la tabla con los elementos del catalogo
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
         for(int k= 0; k<list.size();k++){
         model.addRow(new Object[]{list.get(k).getNombre(), list.get(k).getPrecio(), list.get(k).getDescuento(),list.get(k).getExistencia()});
@@ -136,43 +233,54 @@ public class Interfaz extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-//    public static void main(String args[]) {
-//        /* Set the Nimbus look and feel */
-//        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-//        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-//         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-//         */
-//        try {
-//            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-//                if ("Nimbus".equals(info.getName())) {
-//                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-//                    break;
-//                }
-//            }
-//        } catch (ClassNotFoundException ex) {
-//            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (InstantiationException ex) {
-//            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (IllegalAccessException ex) {
-//            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-//            java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-//        }
-//        //</editor-fold>
+   public static void main(String args[]) {
+       /* Set the Nimbus look and feel */
+       //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+       /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
+        * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+        */
+       try {
+           for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+               if ("Nimbus".equals(info.getName())) {
+                   javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                   break;
+               }
+           }
+       } catch (ClassNotFoundException ex) {
+           java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+       } catch (InstantiationException ex) {
+           java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+       } catch (IllegalAccessException ex) {
+           java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+       } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+           java.util.logging.Logger.getLogger(Interfaz.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+       }
+       //</editor-fold>
 //
-//        /* Create and display the form */
-//        java.awt.EventQueue.invokeLater(new Runnable() {
-//            public void run() {
-//                new Interfaz().setVisible(true);
-//            }
-//        });
-//    }
+       /* Create and display the form */
+       java.awt.EventQueue.invokeLater(new Runnable() {
+           public void run() {
+               try {
+                   Interfaz interfaz = new Interfaz();
+                   interfaz.setVisible(true);
+                   interfaz.showItems();
+                   
+               } catch (Exception ex) {
+                   Logger.getLogger(Interfaz.class.getName()).log(Level.SEVERE, null, ex);
+               }
+           }
+       });
+  }
    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables

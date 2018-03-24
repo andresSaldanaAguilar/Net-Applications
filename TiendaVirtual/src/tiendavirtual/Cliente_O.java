@@ -4,22 +4,49 @@ import java.io.*;
 import java.util.LinkedList;
 
 public class Cliente_O {
-	public static void main(String[] args)throws Exception{
-            Socket cl = new Socket("localhost",3000);
-            System.out.println("Conexion con servidor exitosa");
+    
+    LinkedList<Producto> recibeCatalogo() throws Exception{
+        
+        Socket cl = new Socket("localhost",3000);
+        System.out.println("Conexion con servidor exitosa");
 
-            //leemos el catalogo de productos
-            ObjectInputStream ois = new ObjectInputStream(cl.getInputStream());                
-            LinkedList<Producto> list = new LinkedList();
-                
-            try{    
-                while(true){  
-                    list.add((Producto)ois.readObject());
-                }                   
-            }catch(EOFException e){}
-            
-            Interfaz gui = new Interfaz(list);
-            gui.setVisible(true);
-            gui.showItems();            
-        }
+        //enviamos identificador
+        PrintWriter printWriter = new PrintWriter(cl.getOutputStream());
+        printWriter.write("A\n");
+        printWriter.flush();
+        printWriter.close();
+        
+        Socket cl1 = new Socket("localhost",3000);
+        //leemos el catalogo de productos
+        ObjectInputStream ois = new ObjectInputStream(cl1.getInputStream());                
+        LinkedList<Producto> list = new LinkedList();
+
+        try{    
+            while(true){  
+                list.add((Producto)ois.readObject());
+            }                   
+        }catch(EOFException e){}
+        
+        ois.close();
+        return list;
+    }
+    
+    void enviaCompra(LinkedList<Producto> list) throws Exception{
+        
+        Socket cl = new Socket("localhost",3000);
+        System.out.println("Conexion con servidor exitosa");
+
+        ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());       
+        System.out.println(list.size());
+        for (Producto producto: list) {
+            oos.writeObject(producto);
+            oos.flush();
+        }     
+        oos.close();
+    }
+    
+//    public static void main(String[] args)throws Exception{
+//        Cliente_O cliente = new Cliente_O();
+//        cliente.recibecatalogo();
+//    }
 }

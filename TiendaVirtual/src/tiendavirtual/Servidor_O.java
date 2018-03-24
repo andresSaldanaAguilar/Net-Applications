@@ -19,20 +19,39 @@ public class Servidor_O {
             Socket cl = ss.accept();
             System.out.println("Cliente conectado desde "+ cl.getInetAddress() +" en el puerto " + cl.getPort());
             
-            //envio de catalogo de productos
-            ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());       
+            //recibe identificador
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(cl.getInputStream()));
+            String op = bufferedReader.readLine();
+            bufferedReader.close();
             
-            for (Producto producto: list) {
-                oos.writeObject(producto);
-                oos.flush();
-            }
-            oos.close();
-                  
-            //ss.close();
-            //request
+            //
+            if(op.equals("A")){
+                //envio de catalogo de productos
+                Socket cl1 = ss.accept();
+                System.out.println("enviando productos...");
+                ObjectOutputStream oos = new ObjectOutputStream(cl1.getOutputStream());       
 
-            //System.out.println("Objeto recibido desde "+ cl.getInetAddress() +" en el puerto " + cl.getPort());
-            //System.out.println("x:"+ob.x+" y:"+ob.y);
+                for(Producto producto: list) {
+                    oos.writeObject(producto);
+                    oos.flush();
+                }
+                oos.close();
+            }
+            else{
+                Socket cl1 = ss.accept();
+                System.out.println("actualizando productos...");
+                ObjectInputStream ois = new ObjectInputStream(cl1.getInputStream());                
+                LinkedList<Producto> newlist = new LinkedList();
+
+                try{    
+                    while(true){  
+                        newlist.add((Producto)ois.readObject());
+                    }                   
+                }catch(EOFException e){}
+                
+                Reader writer = new Reader();
+                writer.Write(newlist);
+            }           
         }
-	}
+    }
 }

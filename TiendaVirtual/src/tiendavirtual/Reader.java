@@ -6,7 +6,9 @@
 package tiendavirtual;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -26,7 +28,7 @@ public class Reader {
             String sCurrentLine;
             br = new BufferedReader(new FileReader("data.txt"));   
             LinkedList<String> catalogue= new LinkedList();
-            LinkedList<LinkedList> li = new LinkedList(); 
+            
             while ((sCurrentLine = br.readLine()) != null) {
                 String[] arr = sCurrentLine.split("/n");
                 //for the first line it'll print
@@ -49,6 +51,22 @@ public class Reader {
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+    
+    void Write(LinkedList<Producto> list){
+
+        try{
+            String actualizacion = "";
+            for(Producto producto: list) {
+                actualizacion += producto.getNombre()+"_"+producto.getDescripcion()+"_"+producto.getPrecio()+"_"+producto.getDescuento()+"_"+producto.getExistencia()+"_"+producto.getCadenaImagenes()+"\n";
+            }  
+            System.out.println(actualizacion);        
+            BufferedWriter writer = new BufferedWriter(new FileWriter("data.txt"));
+            writer.write(actualizacion);
+            writer.close();
+        }catch (IOException e) {
+            e.printStackTrace();
         }
     }
 //    public static void main(String args[]){

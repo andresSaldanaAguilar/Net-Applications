@@ -53,4 +53,7 @@ public class Producto implements Serializable{
         return arr;
     }
             
+    void setExistencia(int existencia){
+        this.existencia = existencia;
+    }
 }
