@@ -8,6 +8,8 @@
 #include <netdb.h> //getaddrinfo() getnameinfo() freeaddrinfo()
 #define pto "9999"
 
+int randnum;
+
 void error(const char * msj){
  perror(msj);
  exit (1);
@@ -23,8 +25,14 @@ void *get_in_addr(struct sockaddr *sa)
     return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
+int random_num()
+{
+    randnum = rand()%4;
+    return randnum;
+}
 
 int main(){
+
  int sd,cd,n,n1,v=1,rv,op=0;
  socklen_t ctam;
  char s[INET6_ADDRSTRLEN], hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
@@ -94,6 +102,26 @@ int main(){
 
     FILE *f = fdopen(cd,"w+");
     char buf[1024];
+
+    /*arreglos para tipos de dificultades*/
+    /*novato*/
+    const char *a[4];
+    a[0] = "ojo";
+    a[1] = "oro";
+    a[2] = "uno";
+    a[3] = "dos";        
+    /*novato*/
+    const char *b[4];
+    b[0] = "caballero";
+    b[1] = "damicela";
+    b[2] = "botella";
+    b[3] = "pantalon";
+    /*novato*/
+    const char *c[4];
+    c[0] = "otorrinolaringologo";
+    c[1] = "electrocardiograma";
+    c[2] = "paralelepipedo";
+    c[3] = "caleidoscopio";
         for(;;){
             bzero(buf,sizeof(buf));
             n=read(cd,buf,sizeof(buf));
@@ -102,10 +130,11 @@ int main(){
                 perror("Error de lectura\n");
                 close(cd);
                 break;
-                } else if(n==0){
+            }
+            else if(n==0){
                 perror("Socket cerrado\n");
                 break;
-                }//if
+            }
             printf("recibido:  %s  longitud:%d \n",buf,(int)strlen(buf));
             //char *tmp = (char *) malloc(strlen(buf));
             if(strstr(buf, "SALIR")!=NULL){
@@ -113,10 +142,31 @@ int main(){
                 fclose(f);
                 close(cd);
                 break;
-            } else {
-            n1= write(cd,buf,n);
-            fflush(f);
-            }//else
+            }
+            else if(strstr(buf, "1")!=NULL){
+                printf("Novato\n");
+                int n = random_num();
+                send(cd,a[n], strlen(a[n])+1,1);
+                n1= write(cd,buf,n-1);
+                fflush(f);
+            }
+            else if(strstr(buf, "2")!=NULL){
+                printf("Intermedio\n");
+                int n = rand()%4;
+                send(cd,b[n], strlen(b[n])+1,1);
+                n1= write(cd,buf,n-1);
+                fflush(f);
+            }
+            else if(strstr(buf, "3")!=NULL){
+                printf("Leyenda\n");
+                int n = rand()%4;
+                send(cd,c[n], strlen(c[n])+1,1);
+                n1= write(cd,buf,n-1);
+                fflush(f);
+            }            
+            else{
+                
+            }
         }//for
    }//for
   close(sd);
