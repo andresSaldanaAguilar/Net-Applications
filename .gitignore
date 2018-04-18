@@ -11,3 +11,6 @@ nbdist/
 .nb-gradle/
 *.jpeg
 *.jpg
+/Chat/nbproject/private/
+/CipherApp/nbproject/private/
+/SHA-MD5/nbproject/private/

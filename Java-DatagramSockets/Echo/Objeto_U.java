@@ -12,7 +12,7 @@ public class Objeto_U implements Serializable {
       this.total = t;
       this.msj = Arrays.copyOf(b, b.length);
   }
-  
+
   public int getN(){return this.n;}
   public int getTotal(){return this.total;}
   public byte[] getB(){return this.msj;}
