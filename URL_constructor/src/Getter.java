@@ -1,4 +1,6 @@
 
+import java.awt.Image;
+import java.awt.image.RenderedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.LinkedList;
+import javax.imageio.ImageIO;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -36,7 +39,7 @@ public class Getter {
            
             root= pm.mkRoot(path);
             
-            is = url.openStream();  
+            is = url.openStream(); 
             br = new BufferedReader(new InputStreamReader(is));
             pm.mkDir(root+"/");
             pm.mkFile(root+"/index.html");
@@ -46,7 +49,7 @@ public class Getter {
             while ((line = br.readLine()) != null) {
                 System.out.println(line); 
                 
-                if(line.contains("link")){
+                if(line.contains("<link") || line.contains("img") || line.contains("<script")){
                     li.add(line);
                 }                
                 writer.append(line);            
@@ -54,6 +57,7 @@ public class Getter {
             writer.close();
             
             li.forEach((item) -> {
+                System.out.println("item:" +item);
                 getLink(item,path,root);
             });
 
@@ -71,10 +75,40 @@ public class Getter {
     }
     
     String getLink(String href,String path,String title){
-        href = href.split("\"")[1];
-        if(href.contains("https")){
-            
+        //case when is a image or script file
+        if(href.contains("src")){       
+            String [] aux = href.split("\"");
+            for(int i = 0 ; i<aux.length ; i++){
+                if(aux[i].contains("src")){
+                    href = aux[i+1];
+                }
+            }
         }
+        //case when is an CSS file
+        else{
+            href = href.split("\"")[1];
+        }
+        
+        
+        //ignoring https files (CDN)
+        if(href.contains("https")){
+            System.out.println("Ignoring: "+title+"/"+href);
+        }
+        //image download case
+        else if(href.contains(".jpg") || href.contains(".png") || href.contains(".ico")){
+            Image image = null;
+            String extension = href.split("\\.")[1];
+            System.out.println("Creating image: "+title+"/"+href+" with extension: "+ extension);
+            try {
+                pm.mkDir(title+"/"+href);
+                pm.mkFile(title+"/"+href);
+                URL url = new URL(path+"/"+href);
+                image = ImageIO.read(url);
+                ImageIO.write((RenderedImage) image, extension,new File(title+"/"+href));
+            } catch (IOException e) {
+            }
+        }
+        //text file download
         else{
             URL url;
             InputStream is = null;
@@ -92,7 +126,8 @@ public class Getter {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(title+"/"+href, true));
 
                 while ((line = br.readLine()) != null) {         
-                    writer.append(line);            
+                    writer.append(line);
+                    System.out.println();
                 }
                 writer.close();
 
