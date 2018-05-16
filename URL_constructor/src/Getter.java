@@ -23,35 +23,103 @@ import javax.imageio.ImageIO;
  *
  * @author andressaldana
  */
-public class Getter {
+public class Getter extends Thread{
     
     pathManager pm= new pathManager();
+    LinkedList<String> externURL = new LinkedList();
+    String path = "";
     
-    void getIndex(String path){
+    public Getter(String path){
+        this.path = path;
+    }
+    
+    void getIndex(){
+        
         URL url;
+        //for the entrant url
         InputStream is = null;
         BufferedReader br;
-        String line,root;///css/resume.min.css
+        //line is the current line that is being readed
+        //root is the main directory of the page
+        String line,root;
+        //this stores the dependencies ofr
         LinkedList<String> li = new LinkedList();
 
         try {
             url = new URL(path);
-           
-            root= pm.mkRoot(path);
+            root= pm.mkRoot(path,1);
+            BufferedWriter writer = null;
+            
+            //if we're dealing with one of this kind of files
+            if(path.contains("pdf") || path.contains("txt")){
+                String fileroot = pm.mkRoot(path,2);
+                pm.mkDir(fileroot);
+                pm.mkFile(root);
+                writer = new BufferedWriter(new FileWriter(root, true));
+            }
+            //if not
+            else{            
+                pm.mkDir(root+"/");
+                pm.mkFile(root+"/index.html");
+                writer = new BufferedWriter(new FileWriter(root+"/index.html", true));
+            }
             
             is = url.openStream(); 
             br = new BufferedReader(new InputStreamReader(is));
-            pm.mkDir(root+"/");
-            pm.mkFile(root+"/index.html");
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter(root+"/index.html", true));
 
-            while ((line = br.readLine()) != null) {
-                System.out.println(line); 
-                
-                if(line.contains("<link") || line.contains("img") || line.contains("<script")){
+            while ((line = br.readLine()) != null) {                
+                if(line.contains("<link") || line.contains("<img") || line.contains("<script")){
                     li.add(line);
-                }                
+                }     
+                //add extern page to waiting list
+                if(line.contains("<a")){
+                    String [] aux = line.split("\"");
+                    for(int i = 0 ; i<aux.length ; i++){
+                        if(aux[i].contains("href")){
+                            if(aux[i+1].contains("#")){
+                                //ignore internal references
+                            }
+                            //when is a reference outside the folder page
+                            else if(aux[i+1].contains("https")){
+                                //validating to avoid duplicates
+                                if(!aux[i+1].equals(path) && !externURL.contains(aux[i+1])){
+                                    externURL.add(aux[i+1]);
+                                }                                                  
+                                //if it's the main index
+                                if(aux[i+1].contains(root)){
+                                    //checar que se envie la verdadera raiz
+                                    line = line.replaceAll(aux[i+1], "index.html");
+                                }
+                                //if is external
+                                else{
+                                    line = line.replaceAll(aux[i+1], "../"+pm.mkRoot(aux[i+1],1)+"/index.html");
+                                }                                
+                                System.out.println("https "+aux[i+1]);
+                            }
+                            //when is a reference inside the folder page
+                            else{
+                                
+                                if(!aux[i+1].equals(path) && !externURL.contains(aux[i+1])){
+                                    externURL.add(path+aux[i+1]);
+                                }
+ 
+                                if(line.contains("/")){
+                                    //if it is this kind of file
+                                    if(line.contains("pdf") || line.contains("txt")){
+                                    }
+                                    else{
+                                        line = line.replaceAll(aux[i+1],"../"+aux[i+1].replaceAll("/", "")+"/index.html");
+                                    }
+                                }
+                                else{
+                                    line = line.replaceAll(aux[i+1],"../"+aux[i+1].replaceAll("/", "")+"/index.html");
+                                }
+                            }
+                        }
+                    }
+                }
+                System.out.println(line);
                 writer.append(line);            
             }
             writer.close();
@@ -62,9 +130,9 @@ public class Getter {
             });
 
         } catch (MalformedURLException mue) {
-             mue.printStackTrace();
+           mue.printStackTrace();
         } catch (IOException ioe) {
-             ioe.printStackTrace();
+           ioe.printStackTrace();
         } finally {
             try {
                 if (is != null) is.close();
@@ -82,23 +150,27 @@ public class Getter {
                 if(aux[i].contains("src")){
                     href = aux[i+1];
                 }
+                //System.out.println("src: "+href);
             }
         }
         //case when is an CSS file
         else{
-            href = href.split("\"")[1];
-        }
-        
-        
+            String [] aux = href.split("\"");
+            for(int i = 0 ; i<aux.length ; i++){
+                if(aux[i].contains("href")){
+                    href = aux[i+1];
+                }
+            }
+        }     
         //ignoring https files (CDN)
         if(href.contains("https")){
-            System.out.println("Ignoring: "+title+"/"+href);
+            //System.out.println("Ignoring: "+title+"/"+href);            
         }
         //image download case
         else if(href.contains(".jpg") || href.contains(".png") || href.contains(".ico")){
             Image image = null;
             String extension = href.split("\\.")[1];
-            System.out.println("Creating image: "+title+"/"+href+" with extension: "+ extension);
+            //System.out.println("Creating image: "+title+"/"+href+" with extension: "+ extension);
             try {
                 pm.mkDir(title+"/"+href);
                 pm.mkFile(title+"/"+href);
@@ -115,19 +187,17 @@ public class Getter {
             BufferedReader br;
             String line;
 
-            try {
-                url = new URL(path+"/"+href);    
+            try {                
+                url = new URL(path);    //aquiiii url = new URL(path+"/"+href);
                 is = url.openStream();  
                 br = new BufferedReader(new InputStreamReader(is));
-                pm.mkDir(title+"/"+href);
-                pm.mkFile(title+"/"+href);
-                System.out.println("Creating: "+title+"/"+href);                
-
-                BufferedWriter writer = new BufferedWriter(new FileWriter(title+"/"+href, true));
+                pm.mkDirSpecial(pm.mkRoot(path,3));
+                pm.mkFile(pm.mkRoot(path,3)+"/index.html");
+                
+                BufferedWriter writer = new BufferedWriter(new FileWriter(pm.mkRoot(path,3)+"/index.html", true));
 
                 while ((line = br.readLine()) != null) {         
                     writer.append(line);
-                    System.out.println();
                 }
                 writer.close();
 
@@ -142,14 +212,21 @@ public class Getter {
                     // nothing to see here
                 }
             }
-        }
-        
+        }        
         return null;
+    }
+    
+    public LinkedList<String> getQueue(){
+        return this.externURL;
+    }
+    
+    public void run(){
+        getIndex();
     }
     
     
     public static void main(String[] args) {
-        Getter g = new Getter();
-        g.getIndex("https://andressaldanaaguilar.github.io/");
+        //Getter g = new Getter();
+        //g.getIndex("https://github.com/");
     }
 }
