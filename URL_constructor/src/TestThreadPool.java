@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author andressaldana
  */
-public class TestThreadPool {  
+public class TestThreadPool{  
     
     //public void 
     
@@ -29,20 +29,14 @@ public class TestThreadPool {
             url = br.readLine();
         } catch (IOException ex) {}
         
-        Getter g = new Getter(url);
-        g.run();
-        LinkedList<String> li = g.getQueue();
-        for(String item:li){
-            System.out.println("queue element: "+ item);
-        }
+        URLhandler u = new URLhandler(url,url);
+        u.run();
+        LinkedList<String> li = u.getQueue();
 
         ExecutorService executor = Executors.newFixedThreadPool(5);//creating a pool of 5 threads  
-        for (int i = 0; i < 5; i++) {  
-            //WorkerThread worker = new WorkerThread("" + i);
-            Getter g1 = new Getter(li.get(i));
-            //g1.run();
-            executor.execute(g1);//calling execute method of ExecutorService
-            //li.add(worker.getMessage());
+        for (int i = 0; i < 10; i++) {  
+            URLhandler u1 = new URLhandler(li.get(i),url);
+            executor.execute(u1);//calling execute method of ExecutorService
         }  
         executor.shutdown();  
         while (!executor.isTerminated()) {}    
@@ -50,3 +44,7 @@ public class TestThreadPool {
 
     }  
  }  
+
+//https://www.djangoproject.com/
+//https://www.heroku.com/
+//https://sweetalert.js.org/guides/
