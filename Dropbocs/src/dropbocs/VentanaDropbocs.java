@@ -1,42 +1,45 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dropbocs;
 
-/**
- *
- * @author andressaldana
- */
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java.io.File;
+import java.util.*;
 import javax.swing.*;
 
 public class VentanaDropbocs {
 
-    int x,y;
+    int x, y;
     JFrame f;
     JPanel panel;
+    GridBagConstraints gbc;
+    GridBagLayout gbl;
     JScrollPane scrollPane;
-    ArrayList<Button> buttons;
+    List<Button> buttons;
+    TreeNode<String> baseNode;
+    TreeNode<String> actualNode;
+    Stack<String> nodeStack;
+    JButton download, upload, getBack;
+    ClienteDropbocs cliente;
 
-    
-    public VentanaDropbocs() {     
-        buttons = new ArrayList<Button>();
+    public VentanaDropbocs(TreeNode<String> baseN, ClienteDropbocs cliente){
+        this.cliente = cliente;
         f = new JFrame();
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.setSize(700,400);
-
-        //initializing checkbox container
-        //important, this makes the rows look thinner than they're
-        this.x = 5;
-        this.y = 1;
+        
+        x = 5;
+        y = 2;
         panel = new JPanel();
-        panel.setLayout(new GridLayout(0, y));
-
+        gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+        gbc.weighty = 0;
+        gbl = new GridBagLayout();
+        panel.setLayout(gbl);
+        //panel.setLayout(new GridLayout(0, y));
         
         //making scrollable the checkbox container
         scrollPane = new JScrollPane(panel);
@@ -46,11 +49,11 @@ public class VentanaDropbocs {
         JLabel title = new JLabel("Dropbocs");
         title.setSize(200, 200);
     
-        JButton download = new JButton("Download");
+        download = new JButton("Download");
         download.addActionListener(al);
-        JButton upload = new JButton("Upload");
+        upload = new JButton("Upload");
         upload.addActionListener(al);
-        JButton getBack = new JButton("<-");
+        getBack = new JButton("<-");
         getBack.addActionListener(al);
         
         JPanel jp = new JPanel();
@@ -64,79 +67,146 @@ public class VentanaDropbocs {
         jPrincipal.add(jp);
         jPrincipal.add(scrollPane);
         f.add(jPrincipal);
-        f.setVisible(true);       
+        f.setVisible(true); 
+        
+        
+        baseNode = actualNode = baseN;
+        nodeStack = new Stack<>();
+        
+        buttons = new LinkedList<>();
+        fillButtons(baseNode);
+        f.setTitle(File.separator + getRelPath());
+    }
+
+    void fillButtons(TreeNode<String> node) {
+        for (TreeNode<String> child : node.getChildren())
+            AddFile(child.getData());
     }
 
     void AddFile(String title) {
-        //the columns always has to be bigger than the expected to not lose format
         x++;
-        panel.setLayout(new GridLayout(x, y));
-        //adding as much buttons as requested
+        //panel.setLayout(new GridLayout(x, y));
         Button btn = new Button(title);
-        //button.addActionListener((ActionListener) this);
         buttons.add(btn);
-        JCheckBox button= btn.getCheckBox();
-        button.setPreferredSize(new Dimension(400, 20));
-        panel.add(button);
-        button.setBorderPainted(true);
-        //adding action listener
-        button.addActionListener(al);       
+        JCheckBox box = btn.getCheckBox();
+        //box.setSize(20, 20);
+        box.addActionListener(al);
+        //box.setPreferredSize(new Dimension(20, 20));
+        gbc.weightx = 0;
+        gbc.gridx = 0;
+        gbl.setConstraints(box, gbc);
+        box.setBorderPainted(true);
+        panel.add(box);
+        JButton bot = btn.getButton();
+        //bot.setSize(20, 20);
+        //bot.setPreferredSize(new Dimension(20, 20));
+        bot.addActionListener(al);
+        //panel.add(bot, gbc);
+        gbc.weightx = 1;
+        gbc.gridx = 1;
+        gbl.setConstraints(bot, gbc);
+        bot.setBorderPainted(true);
+        bot.setHorizontalAlignment(SwingConstants.LEFT);
+        if(actualNode.hasChild(bot.getText()) && !actualNode.getChild(bot.getText()).hasChildren())
+            bot.setEnabled(false);
+        panel.add(bot);
     }
     
     
     void Clear(){
-        //cleaning checkboxes from container
-        for (Button btn : buttons) {
-            btn.getCheckBox().setVisible(false); // line you have in your code, now
-            panel.remove(btn.getCheckBox());     // add this line
-            panel.updateUI();  
+        for (int i = 0; i < buttons.size(); i++) {
+            buttons.get(i).getCheckBox().setVisible(false);
+            panel.remove(buttons.get(i).getCheckBox());
+            panel.remove(buttons.get(i).getButton());
+            panel.updateUI();
         }
         //cleaning list
         buttons.clear();
         x=5;
     }
     
-    ArrayList<Button> getFiles(){
-        return this.buttons;
+    void getFiles(){
+        List<String> filePaths = new ArrayList<>();
+        String relPath = getRelPath();
+        for(int i = 0; i < buttons.size(); i++)
+            if(buttons.get(i).getCheckBox().isSelected())
+                filePaths.add(relPath + buttons.get(i).getButton().getText());
+        if(filePaths.size() > 0){
+            JFileChooser jf = new JFileChooser();
+            jf.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            jf.setAcceptAllFileFilterUsed(false);
+            jf.requestFocus();
+
+            if (jf.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) 
+                cliente.requestFiles(jf.getSelectedFile(), filePaths, getRelPath());
+        }
+        else
+            JOptionPane.showMessageDialog(panel, "Selecciona archivos para descargar.");
     }
     
     void uploadFiles(){
         JFileChooser jf = new JFileChooser();
-        jf.requestFocus(); 
-        jf.setFileSelectionMode(JFileChooser.FILES_ONLY);
         jf.setMultiSelectionEnabled(true);
+        jf.setAcceptAllFileFilterUsed(false);
+        jf.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        jf.requestFocus();
         int r = jf.showOpenDialog(null);
 
-        if (r==JFileChooser.APPROVE_OPTION) {
-            //WIP upload logic 
+        if (r==JFileChooser.APPROVE_OPTION && jf.getSelectedFiles().length > 0){
+            cliente.sendFiles(jf.getSelectedFiles(), getRelPath());
         }
     }
     
-    void changeDirectory(){
-       this.Clear();
-       //WIP change directory logic
-    } 
+    void moveForward(String dir){
+        this.Clear();
+        actualNode = actualNode.getChild(dir);
+        nodeStack.add(dir);
+        fillButtons(actualNode);
+        f.setTitle(File.separator + getRelPath());
+    }
+    void moveBackward(){
+        if(actualNode != baseNode){
+            this.Clear();
+            actualNode = actualNode.getParent();
+            nodeStack.pop();
+            fillButtons(actualNode);
+            f.setTitle(File.separator + getRelPath());
+        }
+        else
+            JOptionPane.showMessageDialog(panel, "Estás en la carpeta raíz");
+    }
+    
+    String getRelPath(){
+        String newPath = "";
+        for(String level : nodeStack)
+            if(!level.equals(baseNode))
+                newPath += level + File.separator;
+        return newPath;
+    }
     
     
-    
-    //listens to the clicked and unclicked checkboxes
     ActionListener al = new ActionListener(){
         public void actionPerformed(ActionEvent ae){
             
-            AbstractButton ab = (AbstractButton) ae.getSource();           
-            boolean selected = ab.getModel().isSelected();
-            //searching for the clicked checkbox
-            for (Button btn : buttons) {
-                if(btn.getTextCheckBox().equals(ab.getText())){
-                    btn.setState(selected);
-                    System.out.println(btn.getTextCheckBox() + " " + btn.getState());
+            if(ae.getSource().equals(getBack))
+                moveBackward();
+            else if(ae.getSource().equals(download))
+                getFiles();
+            else if(ae.getSource().equals(upload))
+                uploadFiles();
+            else{
+                for (int i = 0; i < buttons.size(); i++) {
+                    if(ae.getSource().equals(buttons.get(i).getButton())){
+                        //if(actualNode.hasChild(buttons.get(i).getButton().getText()) && !actualNode.getChild(buttons.get(i).getButton().getText()).hasChildren())
+                        //    buttons.get(i).getCheckBox().setSelected(!buttons.get(i).getCheckBox().isSelected());
+                        //else    
+                        moveForward(buttons.get(i).getButton().getText());
+                    }
                 }
             }
             
-            if(ab.getText().equals("Download")){
-                System.out.println("action1");
-                getFiles();
-            }
+            
+            /*
             if(ab.getText().equals("Upload")){
                 System.out.println("action3");
                 uploadFiles();
@@ -144,23 +214,7 @@ public class VentanaDropbocs {
             if(ab.getText().equals("<-")){
                 System.out.println("action2");
                 changeDirectory();
-            }    
-            
+            }    */
         }
     };
-    
-        
-    public static void main(String args[]){
-        VentanaDropbocs v = new VentanaDropbocs();
-        
-        v.AddFile("0");
-        v.AddFile("ke ase");
-        v.AddFile("No lo se");
-        v.AddFile("hola");
-        v.Clear();
-        v.AddFile("hola");
-        v.AddFile("ke ase");
-        v.AddFile("No lo se");
-    }
-
 }

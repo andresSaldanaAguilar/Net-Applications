@@ -1,35 +1,23 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dropbocs;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 
-/**
- *
- * @author andressaldana
- */
 public class Button {
     JCheckBox button;
-    boolean state;
+    JButton bot;
     
     public Button(String title){
-        button = new JCheckBox(title);
-        state = false;    
-    }
-    
-    boolean getState(){
-        return this.state;
+        button = new JCheckBox();
+        bot = new JButton(title);
     }
     JCheckBox getCheckBox(){
-        return this.button;
+        return button;
     }
-    void setState(boolean state){
-       this.state = state;
+    JButton getButton(){
+        return bot;
     }
-    String getTextCheckBox(){
-        return button.getText();
+    String getText(){
+        return bot.getText();
     }
 }

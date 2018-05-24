@@ -5,12 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode<T> implements Serializable{
-    private T data = null;
-    private List<TreeNode> children = new ArrayList<>();
-    private TreeNode parent = null;
+    private T data;
+    private List<TreeNode> children;
+    private TreeNode parent;
 
+    public TreeNode() {
+        data = null;
+        children = new ArrayList<>();
+        parent = null;
+    }
     public TreeNode(T data) {
         this.data = data;
+        children = new ArrayList<>();
+        parent = null;
     }
 
     public void addChild(TreeNode child) {
@@ -34,6 +41,21 @@ public class TreeNode<T> implements Serializable{
     public List<TreeNode> getChildren() {
         return children;
     }
+    
+    public boolean hasChild(T data) {
+        for(TreeNode child : children){
+            if(child.getData().equals(data))
+                return true;
+        }
+        return false;
+    }
+    public TreeNode getChild(T data) {
+        for(TreeNode child : children){
+            if(child.getData().equals(data))
+                return child;
+        }
+        return null;
+    }
 
     public T getData() {
         return data;
@@ -49,5 +71,9 @@ public class TreeNode<T> implements Serializable{
 
     public TreeNode getParent() {
         return parent;
+    }
+    
+    public boolean hasChildren() {
+        return children.size() > 0;
     }
 }
