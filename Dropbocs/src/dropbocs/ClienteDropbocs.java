@@ -34,6 +34,10 @@ public class ClienteDropbocs {
     TreeNode<String> baseNode = null;
     File baseDir = null;
     VentanaDropbocs v = null;
+    //---------------------------------------
+    DIFFIE dhA = new DIFFIE("90000049","5683","10002");
+    String A = dhA.GenerateKeyPart();
+    //---------------------------------------
 
     public ClienteDropbocs() {
         try {
@@ -92,10 +96,21 @@ public class ClienteDropbocs {
             System.out.println("Archivo Recibido.");
             dos.close();
             dis.close();
-            //------------------------------------------------------------------------------------
+            //------------------------------------------------------------------
+            AES aes = new AES(dhA);
+            String hashI = aes.getHash(destPath.getAbsolutePath() + File.separator + nombre);
+            aes.AESIt(destPath.getAbsolutePath() + File.separator + nombre, 2);
+            String hashO = aes.hashFile(destPath.getAbsolutePath() + File.separator + nombre);
+            System.out.println("hash:\n"+hashI+"\n"+hashO);
+            //------------------------------------------------------------------
             unZipIt(destPath.getAbsolutePath() + File.separator + nombre, destPath);
             new File(destPath.getAbsolutePath() + File.separator + nombre).delete();
-            JOptionPane.showMessageDialog(v.panel, "Archivos descargados.");
+            if(hashI.equals(hashO)){
+                JOptionPane.showMessageDialog(v.panel, "Archivo(s) descargado(s) correctamente.");                
+            }
+            else{
+                JOptionPane.showMessageDialog(v.panel, "Error, el archivo esta corrupto.");                
+            }
         }
         catch(Exception e){
             if(e.getMessage().contains("Connection reset by peer")){
@@ -124,11 +139,9 @@ public class ClienteDropbocs {
             for(int i = 0; i < fileList.size(); i++)
                 System.out.println(" - " + fileList.get(i));
             zipIt(zipFile, fileList, basePath);
-            System.out.println("zipfile "+zipFile);
             //------------------------------------------------------------------
-            AES aes = new AES();
+            AES aes = new AES(dhA);
             aes.AESIt(zipFile, 1);
-            System.out.println("new zipfile "+zipFile);
             //------------------------------------------------------------------
             Socket newCl = new Socket(dst, pto);
             DataOutputStream dos = new DataOutputStream(newCl.getOutputStream());

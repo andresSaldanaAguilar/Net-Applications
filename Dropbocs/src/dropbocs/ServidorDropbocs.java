@@ -23,6 +23,10 @@ public class ServidorDropbocs {
     String dropPath = System.getProperty("user.dir") + dropDir;
     String zipPath = System.getProperty("user.dir") + File.separator + "zipper.zip";
     File baseDir = null;
+    //---------------------------------------
+    DIFFIE dhB = new DIFFIE("90000049","5683","10022");
+    String B = dhB.GenerateKeyPart();
+    //---------------------------------------
     
     public ServidorDropbocs() {
         System.out.println("Directorio base: " + dropPath);
@@ -80,9 +84,12 @@ public class ServidorDropbocs {
                         if(f.isDirectory())
                             filePaths.set(i, filePaths.get(i) + File.separator);
                         filePaths.addAll(generateFileList(f, false));
-                    }
-                    
+                    }   
                     zipIt(zipPath, filePaths , relPath);
+                    //----------------------------------------------------------
+                    AES aes = new AES(dhB);
+                    aes.AESIt(zipPath, 1); 
+                    //----------------------------------------------------------                     
                     Socket newCl = s.accept();
                     DataOutputStream dos = new DataOutputStream(newCl.getOutputStream());
                     File f = new File(zipPath);
@@ -141,12 +148,10 @@ public class ServidorDropbocs {
                     System.out.println("Archivo Recibido.");
                     dos.close();
                     dis.close();
-                    //----------------------------------------------------------------------
-                    System.out.println("dropPath: "+dropPath + relPath + nombre);
-                    AES aes = new AES();
+                    //----------------------------------------------------------
+                    AES aes = new AES(dhB);
                     aes.AESIt(dropPath + relPath + nombre, 2); 
-                    //-----------------------------------------------------------------------------------------
-                                        //---------------------------------------------------
+                    //----------------------------------------------------------
                     unZipIt(dropPath + relPath, nombre);
                     
                     new File(dropPath + relPath, nombre).delete();
