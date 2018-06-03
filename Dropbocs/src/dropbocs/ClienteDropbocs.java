@@ -29,7 +29,7 @@ import dropbocs.AES;
 
 public class ClienteDropbocs {
     int pto = 1111;
-    String dst = "127.0.0.1";
+    String dst = "10.100.75.206";
     Socket cl = null;
     TreeNode<String> baseNode = null;
     File baseDir = null;
@@ -37,12 +37,24 @@ public class ClienteDropbocs {
     //---------------------------------------
     DIFFIE dhA = new DIFFIE("90000049","5683","10002");
     String A = dhA.GenerateKeyPart();
+    String B = "";
     //---------------------------------------
 
     public ClienteDropbocs() {
         try {
             cl = new Socket(dst, pto);
             System.out.println("Conexion establecida...");
+            
+            System.out.println("Recibiendo parametro de llave..");
+            ObjectInputStream oisKey = new ObjectInputStream(cl.getInputStream());
+            String keyB = (String) oisKey.readObject();
+            B = dhA.GenerateSharedKey(keyB);
+            
+            System.out.println("Compartiendo parametro de llave..");
+            ObjectOutputStream oosKey = new ObjectOutputStream(cl.getOutputStream());
+            oosKey.writeObject(A);
+            oosKey.flush();           
+            
             ObjectInputStream ois = new ObjectInputStream(cl.getInputStream());
             baseNode = (TreeNode<String>) ois.readObject();
             System.out.println("Árbol recibido. Construyendo interfaz.");
@@ -91,13 +103,13 @@ public class ClienteDropbocs {
                 dos.write(b,0,n);
                 dos.flush();
                 porcentaje = (int)((recibido * 100)/tam);
-                System.out.println("\rRecibido el " + porcentaje + "% del archivo.");
+               System.out.println("\rRecibido el " + porcentaje + "% del archivo.");
             }
             System.out.println("Archivo Recibido.");
             dos.close();
             dis.close();
             //------------------------------------------------------------------
-            AES aes = new AES(dhA);
+            AES aes = new AES(B);
             String hashI = aes.getHash(destPath.getAbsolutePath() + File.separator + nombre);
             aes.AESIt(destPath.getAbsolutePath() + File.separator + nombre, 2);
             String hashO = aes.hashFile(destPath.getAbsolutePath() + File.separator + nombre);
@@ -140,7 +152,7 @@ public class ClienteDropbocs {
                 System.out.println(" - " + fileList.get(i));
             zipIt(zipFile, fileList, basePath);
             //------------------------------------------------------------------
-            AES aes = new AES(dhA);
+            AES aes = new AES(B);
             aes.AESIt(zipFile, 1);
             //------------------------------------------------------------------
             Socket newCl = new Socket(dst, pto);
@@ -166,10 +178,11 @@ public class ClienteDropbocs {
                 while(enviados < tam){
                     n = dis.read(b);
                     enviados += n;
+                System.out.println(new String(b,0,n));
                     dos.write(b,0,n);
                     dos.flush();
                     porcentaje = (int)((enviados*100)/tam);
-                    System.out.print("\r\tTransmitiendo el " + porcentaje + "% del archivo...");
+                    //System.out.print("\r\tTransmitiendo el " + porcentaje + "% del archivo...");
                 }
                 System.out.println("\n\tArchivo transmitido.");
                 dis.close();

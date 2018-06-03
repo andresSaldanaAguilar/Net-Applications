@@ -26,6 +26,7 @@ public class ServidorDropbocs {
     //---------------------------------------
     DIFFIE dhB = new DIFFIE("90000049","5683","10022");
     String B = dhB.GenerateKeyPart();
+    String A = "";
     //---------------------------------------
     
     public ServidorDropbocs() {
@@ -53,6 +54,16 @@ public class ServidorDropbocs {
                 Socket cl = s.accept();
                 System.out.println("Cliente conectado desde " + cl.getInetAddress() + ": " + cl.getPort());
 
+                System.out.println("Compartiendo parametro de llave..");
+                ObjectOutputStream oosKey = new ObjectOutputStream(cl.getOutputStream());
+                oosKey.writeObject(B);
+                oosKey.flush();
+                
+                System.out.println("Recibiendo parametro de llave..");
+                ObjectInputStream oisKey = new ObjectInputStream(cl.getInputStream());
+                String keyA = (String) oisKey.readObject();
+                A = dhB.GenerateSharedKey(keyA);
+                
                 baseNode = fillTree(baseDir);
                 ObjectOutputStream oos = new ObjectOutputStream(cl.getOutputStream());
                 oos.writeObject(baseNode);
@@ -87,7 +98,7 @@ public class ServidorDropbocs {
                     }   
                     zipIt(zipPath, filePaths , relPath);
                     //----------------------------------------------------------
-                    AES aes = new AES(dhB);
+                    AES aes = new AES(A);
                     aes.AESIt(zipPath, 1); 
                     //----------------------------------------------------------                     
                     Socket newCl = s.accept();
@@ -140,16 +151,17 @@ public class ServidorDropbocs {
                         byte[] b = new byte[1500];
                         n = dis.read(b);
                         recibido += n;
+                            System.out.println(new String(b,0,n));
                         dos.write(b,0,n);
                         dos.flush();
                         porcentaje = (int)((recibido * 100)/tam);
-                        System.out.println("\rRecibido el " + porcentaje + "% del archivo.");
+                        //System.out.println("\rRecibido el " + porcentaje + "% del archivo.");
                     }
                     System.out.println("Archivo Recibido.");
                     dos.close();
                     dis.close();
                     //----------------------------------------------------------
-                    AES aes = new AES(dhB);
+                    AES aes = new AES(A);
                     aes.AESIt(dropPath + relPath + nombre, 2); 
                     //----------------------------------------------------------
                     unZipIt(dropPath + relPath, nombre);
