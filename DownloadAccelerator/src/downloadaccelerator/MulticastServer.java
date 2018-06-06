@@ -4,8 +4,6 @@
  * and open the template in the editor.
  */
 package downloadaccelerator;
-import java.io.IOException;
-import sun.net.*;
 import java.net.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,33 +11,38 @@ import java.util.logging.Logger;
  *
  * @author andressaldana
  */
-public class MulticastServer {
-    public static void main(String[] args ){
+public class MulticastServer extends Thread{
+    int port;
+    
+    public MulticastServer(int port){
+        this.port = port;
+    }
+    
+    public void run(){
+        
         System.setProperty("java.net.preferIPv4Stack", "true");
         InetAddress gpo=null;
-        int pto =9876;
         try{
-            MulticastSocket s= new MulticastSocket(9876);
+            //Setting up server
+            MulticastSocket s= new MulticastSocket(port);
             s.setReuseAddress(true);
-            s.setTimeToLive(128);
-            String msj ="hola";
-            byte[] b = msj.getBytes();
+            s.setTimeToLive(0);
             try{
                 gpo = InetAddress.getByName("228.1.1.1");
             }catch(UnknownHostException u){
                 System.err.println("Direccion no valida");
-            }//catch
+            }
             s.joinGroup(gpo);
+            System.out.println(port+" Esperando por mensaje...");
+            //waiting for packages
             for(;;){
-                DatagramPacket p = new DatagramPacket(b,b.length,gpo,9999);
-                s.send(p);
-                System.out.println("Enviando mensaje "+msj+ " con un TTL= "+ s.getTimeToLive());
-                try{
-                    Thread.sleep(3000);
-                }catch(InterruptedException ie){}
-            }//for
+                DatagramPacket p = new DatagramPacket(new byte[10],10);
+                s.receive(p);
+                String msj = new String(p.getData());
+                System.out.println(port+" Datagrama recibido: "+msj);
+            }
         }catch(Exception e){
             Logger.getLogger(MulticastServer.class.getName()).log(Level.SEVERE, null, e);
-        }//catch
-    }//main
+        }
+    }
 }

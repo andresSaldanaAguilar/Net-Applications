@@ -18,8 +18,8 @@ public class Client {
 	    Registry registry = LocateRegistry.getRegistry(host);	
 	    
 	    Dir stub = (Dir) registry.lookup("Dir");
-            File file = stub.itExists("12.455.67","prin");
-            System.out.println(file.length());
+            FileObj file = stub.itExists("12.455.67","prin");
+            System.out.println("Checksum: "+file.checksum+" Name:"+file.file.getName()+" Server:"+file.id);
             
 	    
             

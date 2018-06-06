@@ -1,31 +1,43 @@
 package downloadaccelerator;
 
 //package hello;
+import static downloadaccelerator.MD5Checksum.getMD5Checksum;
 import java.io.File;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Server implements Dir {
 
     public Server() {
     }
 
-    public File itExists(String ip, String fileName) throws RemoteException{
-        File folder = new File(System.getProperty("user.dir") + "/" + ip);
+    public FileObj itExists(String id, String fileName) throws RemoteException{
+        
+        File folder = new File(System.getProperty("user.dir")+"/"+id);
         File[] listOfFiles = folder.listFiles();
         File file = null;
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                if (listOfFiles[i].getName().contains(fileName)) {
-                    file = new File(System.getProperty("user.dir") + "/" + ip + "/" + listOfFiles[i].getName());
+                if(listOfFiles[i].getName().contains(fileName)){
+                    file = new File(System.getProperty("user.dir")+"/"+id+"/"+listOfFiles[i].getName());
                 }
-            }
-            else if (listOfFiles[i].isDirectory()) {
+            } else if (listOfFiles[i].isDirectory()) {
             }
         }
-        return file;
+        try{
+            System.out.println(file.getAbsolutePath());
+            String hash = getMD5Checksum(file.getAbsolutePath());
+            FileObj obj = new FileObj(file,hash,id);
+            return obj;
+        }catch(Exception e){
+            Logger.getLogger(MulticastServer.class.getName()).log(Level.SEVERE, null, e);
+            return null;
+        }
+        
     }
 
     public static void main(String args[]) {
