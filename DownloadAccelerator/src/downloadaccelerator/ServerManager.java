@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class ServerManager {
     public static void main(String[] args ) throws IOException, InterruptedException{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        System.out.println("Number of servers:");
+        System.out.println("Numero de servidores:");
         //number of servers
         int nos = Integer.parseInt(br.readLine());
                  
@@ -26,7 +26,6 @@ public class ServerManager {
         for(int i = 0; i < nos; i++){
             ms[i] = new MulticastServer(9990+i);
             ms[i].start();                  
-        }
-      
+        }    
     }
 }

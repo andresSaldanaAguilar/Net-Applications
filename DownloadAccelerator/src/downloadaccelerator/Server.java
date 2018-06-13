@@ -29,12 +29,12 @@ public class Server implements Dir {
             }
         }
         try{
-            System.out.println(file.getAbsolutePath());
             String hash = getMD5Checksum(file.getAbsolutePath());
             FileObj obj = new FileObj(file,hash,id);
             return obj;
         }catch(Exception e){
-            Logger.getLogger(MulticastServer.class.getName()).log(Level.SEVERE, null, e);
+            //Logger.getLogger(MulticastServer.class.getName()).log(Level.SEVERE, null, e);
+            System.out.println("No existe el archivo");
             return null;
         }
         
